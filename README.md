@@ -1,10 +1,13 @@
-News-Recommend-System
-=========================================================================================
+Offline：
 
-### 针对新闻分发内容质量差、过度相似现象，为用户实时推荐个性化优质新闻。负责TopN推荐算法的设计改进，召回、过滤、排序
+用户-新闻行为隐反馈数据。
 
+协同过滤
 
-### 构建特征矩阵news、user profile相似度、userCF推荐度、热度；新闻语料训练word2vec生成word向量，拼接news特征；由用户基本信息和已读news特征组成user profile矩阵，计算与候选news相似度；通过user profile相似用户集合，计算userCF推荐度；提取近期热词表，热度量化指标tf-idf引入周期性衰减，热词与阅读量表征新闻热度；朴素贝叶斯分类过滤劣质内容
+userCF：建立item-user倒排表，计算用户余弦相似度矩阵，累加用户相似度到前K个相似用户阅读集中的news上，排序前N；
 
+itemCF：计算新闻余弦相似度矩阵，累加新闻相似度到与该用户已读新闻前k个相似的新闻集中的news上，排序前N；准确、召回率都较低；
 
-### 生成推荐，首先用faiss索引，对user profile相似度、userCF推荐度、热度三路召回，针对特征连续、密集性，Xgboost排序推荐，覆盖率低；后将用户及上下文emdedding，三层Relu输出与news矩阵内积，接softmax召回
+转化为二分类，划分正负样本，统计热度、userCF和itemCF推荐度作为样本特征，针对特征连续、密集性，Xgboost分类排序；
+
+考虑内容的重要性，用DNN模拟矩阵分解。将新闻、用户基本信息及时间上下文emdedding，新闻语料训练word2vec生成词向量，计算news特征，由用户基本信息和最近阅读news特征组成user profile。news特征和user profile双输入，分别经过一层Relu全连接后内积，接softmax分类排序
