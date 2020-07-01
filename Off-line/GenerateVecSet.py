@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 
+import sys
+import jieba
+import numpy as np
+import pandas as pd
+import _pickle as cPickle
+from operator import itemgetter
+from gensim.models import word2vec
+
+
 #导入行为数据
 dataset='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/data/train_date_set1.txt'
 root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
 
-# f1=open(root+'data/train_date_set1/train_date_set1_1.txt')
 f1=open(root+'data/train_date_set1.txt')
 
 #行为序列 新闻集合 positive
-import sys
-from operator import itemgetter
-
 newsSet = {}               #所有新闻样本
 newsSet_count = 0      #新闻计数
 
@@ -113,7 +118,6 @@ f.close()
 
 #news embedding
 #分词
-import jieba
 
 def get_stop_words():
     path = "/Users/tung/Python/PersonalProject/NewsRecommend/word-embedding/chineseStopWords.txt"
@@ -146,16 +150,12 @@ def cut_candidate(candidate):
 
 #向量化
 #加载word2Vec
-from gensim.models import word2vec
-
 # 加载已训练好的word2vec模型
 word_model = word2vec.Word2Vec.load('/Users/tung/Python/PersonalProject/NewsRecommend/word-embedding/sougouCS_wordVec')
 # 先拿到全部的vocabulary
 vocab = word_model.wv.vocab.keys()
 
 #所有分词的vector取均值
-import numpy as np
-
 # 得到任意text的vector
 def get_vector(word_list):
     # 建立一个全是0的array
@@ -168,7 +168,6 @@ def get_vector(word_list):
     return res/count if count >0 else res
 
 #news embedding矩阵
-
 for news, title in newsSet.items():
     cut = cut_candidate(title)
     vector = get_vector(cut)
@@ -247,20 +246,15 @@ print('user_lable shape', user_lable.shape, file=sys.stderr)
 cPickle.dump(user_lable, open(root + 'multi_user_lable.pkl', 'wb'))
 
 #持久化binary_news_feature
-import pandas as pd
-
 news_feature = []
 
 for user, news in dataSet.items():
     for new, label in news.items():
         news_feature.append(newsSet[new])
 
-import _pickle as cPickle
 cPickle.dump(news_feature, open(root + 'binary_news_feature.pkl', 'wb'))   #新闻embedding字典
 
 #持久化binary_user_feature
-import pandas as pd
-
 user_feature = []
 
 for user, news in dataSet.items():

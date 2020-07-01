@@ -2,7 +2,6 @@
 
 import sys
 import math
-
 from operator import itemgetter
 from collections import defaultdict
 import random
@@ -26,7 +25,6 @@ print ('recommended movie number = %d' % n_rec_news, file=sys.stderr)
 dataset='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/data/train_date_set1.txt'
 root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
 
-# f1=open(root+'data/train_date_set1/train_date_set1_1.txt')
 f1=open(root+'data/train_date_set1.txt')
 
 pivot = 0.6
@@ -35,7 +33,6 @@ trainset_len = 0
 testset_len = 0
 
 "遍历所有浏览记录，保存所有用户浏览过的新闻id到字典，返回{用户id：news_id1, news_id2…}"
-
 for line in f1.readlines():
     user = line.strip().split('\t')[0]
     news = line.strip().split('\t')[1]

@@ -12,7 +12,6 @@ random.seed(0)
 dataset='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/data/train_date_set1.txt'
 root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
 
-# f1=open(root+'data/train_date_set1/train_date_set1_1.txt')
 f1=open(root+'data/train_date_set1.txt')
 
 #positive
@@ -280,13 +279,11 @@ df.to_csv(root+'dataset_CF.csv', index = None)
 
 #popular
 #生成特征
-
 for user, news in dataSet.items():
     for new in news:
         dataSet[user][new] =math.log(1 + news_popular[new])
 
 #插入popular
-
 popular = []
 
 for user, news in dataSet.items():
@@ -299,7 +296,6 @@ df=pd.read_csv(root+'dataset_CF.csv')
 
 df['popular'] = popular #将新列的名字设置为itemCFScore
 df.to_csv(root+'dataset_CF.csv', index = None)
-
 
 #############################划分训练集与测试集#################################
 pivot=0.7

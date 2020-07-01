@@ -1,19 +1,34 @@
 #!/usr/bin/env python
 
-#########################################Data prepared##########################################
-#user、news特征
 import numpy as np
 import _pickle as cPickle
 from sklearn import preprocessing
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
+import sys
+import keras as K
+import tensorflow as tf
+from keras.utils import plot_model
+from keras.regularizers import l2
+from keras.callbacks import TensorBoard
 
+py_ver = sys.version
+k_ver = K.__version__
+tf_ver = tf.__version__
+
+K.backend.clear_session()
+
+print("Using Python version " + str(py_ver))
+print("Using Keras version " + str(k_ver))
+print("Using TensorFlow version " + str(tf_ver))
+
+#########################################Data prepared##########################################
+#user、news特征
 batch_size = 128
 epochs = 5
 
 num_classes = 2   #新闻id个数
 length = 384     #输入用户向量
-
 
 root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
 user_feature = cPickle.load( open(root + 'binary_user_feature.pkl','rb') )   #正负样本
@@ -47,7 +62,6 @@ print(X2_test.shape[0], '个测试样本2')
 
 #####################################binary-classDNN###########################################
 #target Onehot
-
 def encode(data):
     print('Shape of data (BEFORE encode): %s' % str(data.shape))
     encoded = to_categorical(data)
@@ -56,23 +70,6 @@ def encode(data):
 
 encoded_y_train = encode(y_train)
 encoded_y_test = encode(y_test)
-
-import sys
-import keras as K
-import tensorflow as tf
-from keras.utils import plot_model
-from keras.regularizers import l2
-from keras.callbacks import TensorBoard
-
-py_ver = sys.version
-k_ver = K.__version__
-tf_ver = tf.__version__
-
-K.backend.clear_session()
-
-print("Using Python version " + str(py_ver))
-print("Using Keras version " + str(k_ver))
-print("Using TensorFlow version " + str(tf_ver))
 
 #双输入
 "定义第一个输入层，user_feature"

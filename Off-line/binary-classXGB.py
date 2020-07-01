@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-import pandas as pd
-import numpy as np
+
 import sys
 import warnings
+import pandas as pd
+import numpy as np
 import xgboost as xgb
 from scipy.stats import uniform, randint
 from sklearn.model_selection import train_test_split
@@ -19,7 +20,6 @@ print ('training data shape is', file=sys.stderr)
 print(trainDf.shape)
 
 X = trainDf[['userCFScore', 'itemCFScore', 'popular']]  #选择表格中的'w'、'z'列
-
 y = trainDf.label
 
 X = np.array(X)
@@ -39,8 +39,6 @@ print ('model training succ', file=sys.stderr)
 print ('reading testdata and predicting ctr', file=sys.stderr)
 
 testDf = pd.read_csv(root+"testset_CF.csv")
-
-
 X_test = np.matrix( pd.DataFrame(testDf, index=None, columns=['userCFScore', 'itemCFScore', 'popular']) )
 y_test = np.array(testDf.label)
 user_id = testDf.user_id
@@ -50,11 +48,11 @@ fout = open(root+"result_Xgb.csv", 'w')
 fout.write(",".join(["user_id", "new_id", "pred_label", "0_proba", "1_proba"]) + "\n")
 
 nrows = len(X_test)                   #测试集样本量
-Xp = np.matrix(X_test)               #测试集特征矩阵
-yp = np.zeros((nrows, 3))            #结果及分数
+Xp = np.matrix(X_test)                #测试集特征矩阵
+yp = np.zeros((nrows, 3))             #结果及分数
 for i in range(0, nrows):
     xp = Xp[i, :]                                   #取第i个样本
-    yp[i, 0] = xgb_model.predict(xp)                  #预测结果
+    yp[i, 0] = xgb_model.predict(xp)                #预测结果
     yp[i, 1] = xgb_model.predict_proba(xp)[0][0]    #预测为0的概率
     yp[i, 2] = xgb_model.predict_proba(xp)[0][1]    #预测为1的概率
     
