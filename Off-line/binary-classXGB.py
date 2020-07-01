@@ -25,7 +25,7 @@ y = trainDf.label
 X = np.array(X)
 y = np.array(y)
 
-#Modeling
+##############################################Modeling#####################################################
 xgb_model = xgb.XGBClassifier(objective="binary:logistic", random_state=42, eval_metric="auc", max_depth=3,
                               min_child_weight=5)
 
@@ -34,7 +34,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 xgb_model.fit(X_train, y_train, early_stopping_rounds=10, eval_set=[(X_test, y_test)], verbose=False)
 print ('model training succ', file=sys.stderr)
 
-#推荐结果输出
+#############################################推荐结果输出###################################################
 
 print ('reading testdata and predicting ctr', file=sys.stderr)
 

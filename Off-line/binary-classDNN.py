@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#Data prepared
+#########################################Data prepared##########################################
 #user、news特征
 import numpy as np
 import _pickle as cPickle
@@ -45,7 +45,7 @@ print(X1_test.shape[0], '个测试样本1')
 print('测试样本2的维度', X2_test.shape)
 print(X2_test.shape[0], '个测试样本2')
 
-#binary-classDNN
+#####################################binary-classDNN###########################################
 #target Onehot
 
 def encode(data):
