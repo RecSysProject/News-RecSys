@@ -19,3 +19,4 @@ res = requests.post(url, data=parms,headers=headers)  # 发送请求
 
 text = res.text
 print(json.loads(text))
+
