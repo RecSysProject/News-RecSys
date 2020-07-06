@@ -100,6 +100,7 @@ def model_train(train_file_name, save_model_file):
     model.wv.save_word2vec_format(save_model_name + ".bin", binary=True)
 # 以二进制类型保存模型以便重用
 
+
 train_file = root + "sougouCS_corpus.txt"
 save_model_name = root + 'sougouCS_wordVec'
 if not os.path.exists(save_model_name):     # 判断文件是否存在
