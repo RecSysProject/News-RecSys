@@ -6,6 +6,7 @@ import numpy as np
 from math import exp
 from datetime import datetime
 from random import normalvariate  # 正态分布
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
 root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
@@ -16,7 +17,56 @@ trainDf = trainDf.sample(1000)
 X = trainDf[['userCFScore', 'itemCFScore', 'popular']]  #选择表格中的'w'、'z'列
 y = trainDf.label
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.6, random_state=42)
+#特征分箱
+def encode(data):
+    data = np.array(data).reshape([-1, 1])
+    Encoder = OneHotEncoder()
+    Encoder.fit(data)
+    encoded = Encoder.transform(data).toarray()
+    return encoded
+
+def bin_frequency(x,y,n=10): # x为待分箱的变量，y为target变量.n为分箱数量
+    total = y.count()  # 计算总样本数
+    bad = y.sum()      # 计算坏样本数
+    good = y.count()-y.sum()  # 计算好样本数
+    d1 = pd.DataFrame({'x':x,'y':y,'bucket':pd.qcut(x,n)})  # 用pd.cut实现等频分箱
+    d2 = d1.groupby('bucket',as_index=True)  # 按照分箱结果进行分组聚合
+    d3 = pd.DataFrame(d2.x.min(),columns=['min_bin'])
+    d3['min_bin'] = d2.x.min()  # 箱体的左边界
+    d3['max_bin'] = d2.x.max()  # 箱体的右边界
+    d3['bad'] = d2.y.sum()  # 每个箱体中坏样本的数量
+    d3['total'] = d2.y.count() # 每个箱体的总样本数
+    d3['bad_rate'] = d3['bad']/d3['total']  # 每个箱体中坏样本所占总样本数的比例
+    d3['badattr'] = d3['bad']/bad   # 每个箱体中坏样本所占坏样本总数的比例
+    d3['goodattr'] = (d3['total'] - d3['bad'])/good  # 每个箱体中好样本所占好样本总数的比例
+    d3['woe'] = np.log(d3['goodattr']/d3['badattr'])  # 计算每个箱体的woe值
+    iv = ((d3['goodattr']-d3['badattr'])*d3['woe']).sum()  # 计算变量的iv值
+    d4 = (d3.sort_values(by='min_bin')).reset_index(drop=True) # 对箱体从大到小进行排序
+    cut = []
+    cut.append(float('-inf'))
+    for i in d4.min_bin:
+        cut.append(i)
+    cut.append(float('inf'))
+    woe = list(d4['woe'].round(3))
+    return d4,iv,cut,woe
+
+d4,iv,cut,woe = bin_frequency(X['itemCFScore'], y, n =4)
+temp = pd.cut(X['itemCFScore'], cut, labels=False)
+X_item = encode(temp)
+
+d4,iv,cut,woe = bin_frequency(X['userCFScore'], y, n =2)
+temp = pd.cut(X['userCFScore'], cut, labels=False)
+X_user = encode(temp)
+
+d4,iv,cut,woe = bin_frequency(X['popular'], y, n =5)
+temp = pd.cut(X['popular'], cut, labels=False)
+X_popular = encode(temp)
+
+temp = np.hstack((X_user, X_item))
+X_discretization = np.hstack((temp, X_popular))
+#print('离散化后的feature shape', X_discretization.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(X_discretization, y, train_size=0.6, random_state=42)
 
 y_train = y_train.map(lambda x: 1 if x==1 else -1) #取标签并转化为 +1，-1
 y_test = y_test.map(lambda x: 1 if x==1 else -1) #取标签并转化为 +1，-1
