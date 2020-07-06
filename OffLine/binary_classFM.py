@@ -11,21 +11,22 @@ from sklearn.model_selection import train_test_split
 root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
 
 trainDf=pd.read_csv(root+'trainset_CF.csv')
+trainDf = trainDf.sample(1000)
 
 X = trainDf[['userCFScore', 'itemCFScore', 'popular']]  #选择表格中的'w'、'z'列
 y = trainDf.label
 
-print('dataset festure shape is', X.shape)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.001, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.6, random_state=42)
 
 y_train = y_train.map(lambda x: 1 if x==1 else -1) #取标签并转化为 +1，-1
 y_test = y_test.map(lambda x: 1 if x==1 else -1) #取标签并转化为 +1，-1
-
 X_train = np.array(X_train)
 X_test = np.array(X_test)
 y_train = np.array(y_train)
 y_test = np.array(y_test)
+
+print('trainset feature shape is', X_train.shape)
+print('testset feature shape is', X_test.shape)
 
 def sigmoid(inx):
     return 1. / (1. + exp(-max(min(inx, 15.), -15.)))
