@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 from scipy.stats import uniform, randint
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 warnings.filterwarnings(module='sklearn*', action='ignore', category=DeprecationWarning)
 
@@ -15,8 +16,8 @@ root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
 trainDf=pd.read_csv(root+'trainset_CF.csv')
 trainDf.head()
 
-trainDf = trainDf.sample(3000)
-print ('training data shape is', file=sys.stderr)
+trainDf = trainDf.sample(6000)
+print ('dataset shape is', file=sys.stderr)
 print(trainDf.shape)
 
 X = trainDf[['userCFScore', 'itemCFScore', 'popular']]  #选择表格中的'w'、'z'列
@@ -26,14 +27,17 @@ X = np.array(X)
 y = np.array(y)
 
 ##############################################Modeling#####################################################
-xgb_model = xgb.XGBClassifier(objective="binary:logistic", random_state=42, eval_metric="auc", max_depth=3,
-                              min_child_weight=5)
+xgb_model = xgb.XGBClassifier(objective="binary:logistic", random_state=42, learning_rate =0.13, n_estimators=100,
+                              subsample=0.8, max_depth=3, min_child_weight=5, gamma=0, colsample_bytree=0.7,
+                              reg_lambda=1e-5, eval_metric="auc")
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
 xgb_model.fit(X_train, y_train, early_stopping_rounds=10, eval_set=[(X_test, y_test)], verbose=False)
 print ('model training succ', file=sys.stderr)
 
+y_pred = xgb_model.predict(X_test)
+print('model test accuracy', accuracy_score(y_test, y_pred))
 #############################################推荐结果输出###################################################
 
 print ('reading testdata and predicting ctr', file=sys.stderr)
