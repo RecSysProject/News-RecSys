@@ -94,8 +94,9 @@ print('语料总新闻条数：', np.shape(dictionary))
 def model_train(train_file_name, save_model_file):
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     sentences = word2vec.Text8Corpus(train_file_name, max_sentence_length = 1000)  # 加载语料
-    model = gensim.models.Word2Vec(sentences, size=128, window=5, min_count=20)
-    # 训练skip-gram模型; 默认window=5
+    model = gensim.models.Word2Vec(sentences, size=128, window=4, sg = 1, hs = 0,
+                                   negative = 10, alpha=0.03, min_alpha=0.0007, seed = 14, min_count=20)
+    # 训练skip-gram模型; 默认window=4
     model.save(save_model_file)
     model.wv.save_word2vec_format(save_model_name + ".bin", binary=True)
 # 以二进制类型保存模型以便重用

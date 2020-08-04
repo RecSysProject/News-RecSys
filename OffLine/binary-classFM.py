@@ -82,14 +82,13 @@ print('trainset_freq feature shape is', X_train_freq.shape)
 print('testset_freq feature shape is', X_test_freq.shape)
 
 # GBDT分箱
-gbc = GradientBoostingClassifier(n_estimators=2)
+gbc = GradientBoostingClassifier(n_estimators=2, learning_rate=0.12,
+                                 max_depth=3, subsample=0.83)
 gbc.fit(X, y)
 
 one_hot = OneHotEncoder()
 X_gb = one_hot.fit_transform(gbc.apply(X)[:, :, 0])
 X_gb = X_gb.todense()
-
-print ('GBDT离散特征shape', X_gb.shape)
 
 X_train_gb, X_test_gb, y_train_gb, y_test_gb = train_test_split(X_gb, y, train_size=0.6, random_state=42)
 
@@ -174,7 +173,7 @@ def getAccuracy(dataMatrix, classLabels, w_0, w, v):
 
 print("开始训练")
 Train_start = datetime.now()
-w_0, w, v = SGD_FM(np.mat(X_train_gb), y_train_gb, 20, 100)
+w_0, w, v = SGD_FM(np.mat(X_train_gb), y_train_gb, 20, 60)
 print(
       "训练准确性为：%f" % (1 - getAccuracy(np.mat(X_train_gb), y_train_gb, w_0, w, v)))
 
