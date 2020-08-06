@@ -1,7 +1,7 @@
 **新闻topN推荐 + 语义搜索**
 
 # Offline
-##数据集
+## 数据集
 
 用户-新闻行为隐反馈数据，每条浏览记录包含四个字段：user_id、news_id、news_title、timestamp
 
