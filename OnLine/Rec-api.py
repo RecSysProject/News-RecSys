@@ -33,7 +33,7 @@ class TodoList(Resource):
         
         # 构建新参数
         user_id = args['user_id']
-#        pwd = args['pwd']
+        # pwd = args['pwd']
         print(user_id)
         # 调用方法Rec_News
         info = Rec_News(user_id)

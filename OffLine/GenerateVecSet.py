@@ -65,6 +65,8 @@ class GenerateVecSet(object):
 
         print ('UserSequence %s rowCount' % self.UserSequence_len, file=sys.stderr)
         print('Total news number = %d' % self.newsSet_count, file=sys.stderr)
+        # 新闻title持久化
+        cPickle.dump(self.newsSet, open(self.root+'newsSet_title.pkl', 'wb'))
 
         #negative
         #保证正负样本均衡1:1
@@ -174,11 +176,12 @@ class GenerateVecSet(object):
 
         #持久化multi_newsSet2Vec
         #新闻对应的embedding矩阵
-        newsSet2Vec = []
+        newsSet2Vec = {}
         for news, vector in self.newsSet.items():
-            newsSet2Vec.append(vector)
+            if news not in newsSet2Vec:
+                newsSet2Vec[news] = vector
 
-        cPickle.dump(newsSet2Vec, open(self.root+'multi_newsSet2Vec.pkl', 'wb'))
+        cPickle.dump(newsSet2Vec, open(self.root+'multi_news_word.pkl', 'wb'))
 
     #行为序列embedding
     def user_embedding(self):
@@ -206,11 +209,12 @@ class GenerateVecSet(object):
         #持久化multi_user_profile
         #用户对应的行为序列embedding矩阵
 
-        user_profile = []
+        user_profile = {}
         for user, vector in self.userTimeContext.items():
-            user_profile.append(vector)
+            if user not in user_profile:
+                user_profile[user] = vector
 
-        cPickle.dump(user_profile, open(self.root + 'multi_user_profile.pkl', 'wb'))
+        cPickle.dump(user_profile, open(self.root + 'multi_user_word.pkl', 'wb'))
     
     def Generate_Set(self):
         #持久化multi_user_label
@@ -241,7 +245,7 @@ class GenerateVecSet(object):
             for new, label in news.items():
                 news_feature.append(self.newsSet[new])
 
-        cPickle.dump(news_feature, open(self.root + 'binary_news_feature.pkl', 'wb'))   #新闻embedding字典
+        cPickle.dump(news_feature, open(self.root + 'binary_news_word.pkl', 'wb'))   #新闻embedding字典
 
         #持久化binary_user_feature
         user_feature = []
@@ -249,7 +253,7 @@ class GenerateVecSet(object):
             for new, label in news.items():
                 user_feature.append(self.userTimeContext[user])
 
-        cPickle.dump(user_feature, open(self.root + 'binary_user_feature.pkl', 'wb'))   #对应的embedding矩阵
+        cPickle.dump(user_feature, open(self.root + 'binary_user_word.pkl', 'wb'))   #对应的embedding矩阵
 
         #持久化binary_lable
         df=pd.read_csv(self.root+'dataset_Vec.csv')
