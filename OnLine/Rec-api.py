@@ -18,8 +18,9 @@ parser_put.add_argument("user_id", type=str, required=True, help="need user data
 def Rec_News(argv_):
     result = {}
     test = userCF()
-    test.split_dataset()
-    test.user_sim()
+#    test.split_dataset()
+#    test.user_sim()
+    test.prepared()
     temp = test.recommend(argv_)
     for item_id, ctr in temp:
         result.setdefault(item_id, round(ctr, 4))

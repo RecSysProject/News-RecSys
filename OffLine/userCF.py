@@ -2,6 +2,7 @@
 
 import sys
 import math
+import _pickle as cPickle
 from datetime import datetime
 from operator import itemgetter
 from collections import defaultdict
@@ -10,7 +11,7 @@ random.seed(0)
 
 class userCF(object):
     def __init__(self):
-        self.trainset = {}  #
+        self.trainset = {}
         self.testset = {}
 
         self.n_sim_user = 80      #相似用户数量       *重要5，10，20，40，(80,0.1406)最好，100
@@ -24,7 +25,7 @@ class userCF(object):
 #        print ('Similar user number = %d' % self.n_sim_user, file=sys.stderr)
 #        print ('recommended news number = %d' % self.n_rec_news, file=sys.stderr)
 
-    #划分数据集
+    '划分数据集'
     def split_dataset(self):
         # global_param
         f1=open(self.root+'data/train_date_set1.txt')
@@ -48,12 +49,15 @@ class userCF(object):
                 self.testset[user][news] = time
                 testset_len += 1
 
+        #用户-新闻阅读记录持久化
+        cPickle.dump(self.trainset, open(self.root+'user_news_recrods.pkl', 'wb'))
+
 #        print ('testset_len %s generate' % testset_len, file=sys.stderr)
 #        print ('trainset_len %s generate' % trainset_len, file=sys.stderr)
-#
 #        print ('the number of user %s trainset' % len(self.trainset), file=sys.stderr) #用户数是一样的
 #        print ('the number of user %s testset' % len(self.testset), file=sys.stderr) #用户数是一样的
 
+    '用户相似度'
     def user_sim(self):
         #item-users倒排表
         news2users = dict()
@@ -93,16 +97,21 @@ class userCF(object):
                 simfactor_count += 1
 #                if simfactor_count % PRINT_STEP == 0:
 #                    print ('calculating user similarity factor(%d)' % simfactor_count, file=sys.stderr)
-
-    #推荐
-    # usersim_mat    用户u ：相关用户v ：         相似度
-    # trainset       用户u ：用户已看过的item：    评分
+        # 用户相似度矩阵持久化
+        cPickle.dump(self.user_sim_mat, open(self.root+'user_sim_mat.pkl', 'wb'))
+                
+    '导入用户阅读新闻记录和用户相似度矩阵'
+    def prepared(self):
+        self.trainset = cPickle.load( open(self.root + 'user_news_recrods.pkl','rb') ) #用户u ：用户已看过的item：评分
+        self.user_sim_mat = cPickle.load( open(self.root + 'user_sim_mat.pkl','rb') )  #用户u ：相关用户v ：相似度
+                
+    '推荐'
     def recommend(self, user):
-        
+        rank = dict()
         K = self.n_sim_user   #取相似度最高的k个用户
         N = self.n_rec_news   #推荐前N个item
-        rank = dict()
-        watched_news = self.trainset[user]    # 用户已看过的电影
+
+        watched_news = self.trainset[user]       #用户已看过的电影
         
         "遍历与该用户相似度最高的k个用户，用户、相似度"
         for similar_user, similarity_factor in sorted(self.user_sim_mat[user].items(),
@@ -121,12 +130,12 @@ class userCF(object):
         "推荐兴趣最高的前N个item"
         return sorted(rank.items(), key=itemgetter(1), reverse=True)[0:N]    #推荐兴趣最高的前N个item
 
-    #评估
+    '评估'
     ''' print evaluation result: precision, recall, coverage and popularity '''
     def evaluation(self):
         
         N = self.n_rec_news
-        # precision and recall 准确率和召回率参数
+        # precision and recall准确率和召回率参数
         hit = 0
         rec_count = 0
         test_count = 0
@@ -157,17 +166,19 @@ class userCF(object):
 
         precision = hit / (1.0 * rec_count)       #准确率=命中数/总推荐过的新闻数
         recall = hit / (1.0 * test_count)         #召回率=命中数/总用户读过的新闻数，测试集中
-        coverage = len(all_rec_news) / (1.0 * self.news_count)       #覆盖率=推荐过的新闻集合/总新闻数
+        coverage = len(all_rec_news) / (1.0 * self.news_count)  #覆盖率=推荐过的新闻集合/总新闻数
         popularity = popular_sum / (1.0 * rec_count)            #流行度=推荐过的新闻流行度总和/推荐过的新闻数累加
         
         print ('K=%d precision=%.4f\trecall=%.4f\tcoverage=%.4f\tpopularity=%.4f' % (self.n_sim_user, precision, recall, coverage, popularity), file=sys.stderr)
 
 if __name__ == '__main__':
     start = datetime.now()
+    user_id = '8936831'
     test = userCF()
-    test.split_dataset()
-    test.user_sim()
-    test.evaluation()
+#    test.split_dataset()
+#    test.user_sim()
+#    test.evaluation()
+    test.prepared()
     result = test.recommend(sys.argv[1])
     for item_id, ctr in result:
         print('item_id:%s, ctr:%.4f' % (item_id, ctr))

@@ -2,16 +2,17 @@
 
 import sys
 import math
-import random
-random.seed(0)
+import _pickle as cPickle
 from datetime import datetime
 from operator import itemgetter
 from collections import defaultdict
+import random
+random.seed(0)
 
 class itemCF(object):
     # global_param
     def __init__(self):
-        self.trainset = {}  #
+        self.trainset = {}
         self.testset = {}
         
         self.n_sim_news= 80      #相似新闻数量       *重要5，10，20，40，(80,0.1406)最好，100
@@ -48,13 +49,14 @@ class itemCF(object):
                 self.testset.setdefault(user, {})
                 self.testset[user][news] = time
                 testset_len += 1
-
+        #用户-新闻阅读记录持久化
+        cPickle.dump(self.trainset, open(self.root+'item_user_recrods.pkl', 'wb'))
+                
 #        print ('testset_len %s generate' % testset_len, file=sys.stderr)
 #        print ('trainset_len %s generate' % trainset_len, file=sys.stderr)
-#
 #        print ('the number of user %s trainset' % len(self.trainset), file=sys.stderr) #用户数是一样的
 #        print ('the number of user %s testset' % len(self.testset), file=sys.stderr) #用户数是一样的
-
+    'item相似度'
     def item_sim(self):
         #计算item总数及热度
         for user, news in self.trainset.items():
@@ -96,20 +98,25 @@ class itemCF(object):
                 simfactor_count += 1
 #                if simfactor_count % PRINT_STEP == 0:
 #                    print('calculating movie similarity factor(%d)' % simfactor_count, file=sys.stderr)
-#
+        # item相似度矩阵持久化
+        cPickle.dump(self.news_sim_mat, open(self.root+'item_sim_mat.pkl', 'wb'))
+                
 #        print('calculate movie similarity matrix(similarity factor) succ', file=sys.stderr)
 #        print('Total similarity factor number = %d' % simfactor_count, file=sys.stderr)
 
-    #推荐
-    # itemsim_mat     电影m1：相关电影m2：       相似度
-    # trainset            用户u ：用户已看过的item： 评分
+    '导入用户阅读新闻记录和新闻相似度矩阵'
+    def prepared(self):
+        self.trainset = cPickle.load( open(self.root + 'item_user_recrods.pkl','rb') ) #用户u ：用户已看过的item：评分
+        self.news_sim_mat = cPickle.load( open(self.root + 'item_sim_mat.pkl','rb') )  #新闻m1： 新闻m2： 相似度
+
+    '推荐'
     def recommend(self, user):
         
         K = self.n_sim_news         #取相似度最高的k个item
         N = self.n_rec_news         #推荐前N个item
         rank = {}
         
-        watched_news = self.trainset[user]   # 用户已看过的电影
+        watched_news = self.trainset[user]    # 用户已看过的电影
         
         "遍历该用户看过的所有item"
         for new, time in watched_news.items():
@@ -129,7 +136,7 @@ class itemCF(object):
         "推荐兴趣最高的前N个item"
         return sorted(rank.items(), key=itemgetter(1), reverse=True)[:N]
 
-    #评估
+    '评估'
     ''' print evaluation result: precision, recall, coverage and popularity '''
     def evaluation(self):
         print ('Evaluation start...', file=sys.stderr)
@@ -160,24 +167,27 @@ class itemCF(object):
                 all_rec_news.add(news)
                 
                 popular_sum += math.log(1 + self.news_popular[news])     #总{ (推荐的新闻热度+1)取对数 }
-            rec_count += N                            #总推荐过的新闻数
-            test_count += len(test_news)         #总用户确实读过的新闻数
+            rec_count += N                         #总推荐过的新闻数
+            test_count += len(test_news)           #总用户确实读过的新闻数
 
-        precision = hit / (1.0 * rec_count)       #准确率=命中数/总推荐过的新闻数
-        recall = hit / (1.0 * test_count)           #召回率=命中数/总用户读过的新闻数，测试集中
-        coverage = len(all_rec_news) / (1.0 * self.news_count)      #覆盖率=推荐过的新闻集合/总新闻数
-        popularity = popular_sum / (1.0 * rec_count)            #流行度=推荐过的新闻流行度总和/推荐过的新闻数累加
+        precision = hit / (1.0 * rec_count)        #准确率=命中数/总推荐过的新闻数
+        recall = hit / (1.0 * test_count)          #召回率=命中数/总用户读过的新闻数，测试集中
+        coverage = len(all_rec_news) / (1.0 * self.news_count)     #覆盖率=推荐过的新闻集合/总新闻数
+        popularity = popular_sum / (1.0 * rec_count)               #流行度=推荐过的新闻流行度总和/推荐过的新闻数累加
 
         print ('K=%d precision=%.4f\trecall=%.4f\tcoverage=%.4f\tpopularity=%.4f' %
                (self.n_sim_news, precision, recall, coverage, popularity), file=sys.stderr)
 
 if __name__ == '__main__':
     start = datetime.now()
+    user_id = '8936831'
     test = itemCF()
-    test.split_dataset()
-    test.item_sim()
-    test.evaluation()
+#    test.split_dataset()
+#    test.item_sim()
+#    test.evaluation()
+    test.prepared()
     result = test.recommend(sys.argv[1])
     for item_id, ctr in result:
         print('item_id:%s, ctr:%.4f' % (item_id, ctr))
     print("This took ", datetime.now() - start)
+

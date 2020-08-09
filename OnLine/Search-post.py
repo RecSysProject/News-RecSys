@@ -2,8 +2,8 @@ import requests
 import json
 
 # api路径
-url="http://0.0.0.0:7777/search"
-#url="http://106.12.83.14:7777/search"
+#url="http://0.0.0.0:6666/search"
+url="http://106.12.83.14:6666/search"
 
 # 传入参数
 parms = {
