@@ -1,9 +1,5 @@
-"""
-This is an example implementation of ALS for learning how to use Spark. Please refer to
-pyspark.ml.recommendation.ALS for more conventional use.
-
-This example requires numpy (http://www.numpy.org/)
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 
 import sys
