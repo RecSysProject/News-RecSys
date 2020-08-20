@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 import numpy as np
 import _pickle as cPickle
 from datetime import datetime
