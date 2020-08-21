@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import sys
-
 import numpy as np
 from numpy.random import rand
 from numpy import matrix

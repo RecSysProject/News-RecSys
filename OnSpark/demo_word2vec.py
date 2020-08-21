@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 from pyspark import SparkContext
-
 from pyspark.mllib.feature import Word2Vec
 
 if __name__ == "__main__":
