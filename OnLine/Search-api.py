@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+from sqlWorkflow import Workflow
 sys.path.append("..")       #导入平级目录模块
 from OffLine.semanticSearch import search
 from flask import Flask, g
@@ -17,11 +18,16 @@ parser_put.add_argument("query", type=str, required=True, help="need user data")
 
 # 功能方法
 def Search_News(argv_):
-    result = {}
-    test = search()
-    temp = test.FlatL2(argv_)
-    for news_id, title in temp:
-        result.setdefault(news_id, title)
+    result = []
+    workflow = Workflow()
+    sear = search()
+    temp = sear.FlatL2(argv_)
+
+    for news_id, ctr in temp:
+        middle = workflow.sqlSearch(news_id)
+        middle.setdefault('ctr', round(ctr,4))
+        result.append(middle)
+    
     return result
 
 # 操作（post / get）资源列表
@@ -45,5 +51,5 @@ api.add_resource(TodoList, "/search")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',#任何ip都可以访问
-            port=7777,#端口
+            port=6666,#端口
             debug=True)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import math
 import faiss
 import jieba
 import logging
@@ -26,6 +27,9 @@ class search(object):
         self.word_news_feature_id = list(self.word_news_feature.keys())
         self.word_news_feature_vec = np.array(list(self.word_news_feature.values())).astype('float32')
     
+        self.dim = 128         # 向量维度
+        self.k = 5             # 召回向量个数
+    
     # 得到任意text的vector
     def get_vector(self, word_list):
         # 建立一个全是0的array
@@ -45,16 +49,16 @@ class search(object):
         queryVec = queryVec.reshape(1,128).astype('float32')
         
         #相似度检索
-        dim = 128         # 向量维度
-        k = 10            # 召回向量个数
-        index = faiss.IndexFlatL2(dim)         # L2距离，欧式距离（越小越好）
+        index = faiss.IndexFlatL2(self.dim)         # L2距离，欧式距离（越小越好）
         index.add(self.word_news_feature_vec)  # 添加训练时的样本
-        D, I = index.search(queryVec, k)       # 寻找相似向量， I表示相似向量ID矩阵， D表示距离矩阵
+        D, I = index.search(queryVec, self.k)       # 寻找相似向量， I表示相似向量ID矩阵， D表示距离矩阵
 
         res = []
-        for i in I[0]:
+        for idx, i in enumerate(I[0]):
             news_id = self.word_news_feature_id[i]
-            res.append((news_id, self.newsSet[news_id]))
+            #     res.append((news_id, newsSet[news_id]))    #返回title
+            similarity = 1/math.log(1+D[0][idx])     #距离转相似度
+            res.append((news_id, similarity))        #返回相似度
 
         return res
     
@@ -66,22 +70,22 @@ class search(object):
         queryVec = queryVec.reshape(1,128).astype('float32')
         
         #相似度检索
-        dim = 128         # 向量维度
-        k = 10            # 定义召回向量个数
         nlist = 100       #聚类中心的个数
-        quantizer = faiss.IndexFlatL2(dim)         # 定义量化器
-        index = faiss.IndexIVFFlat(quantizer, dim, nlist, faiss.METRIC_L2)
+        quantizer = faiss.IndexFlatL2(self.dim)         # 定义量化器
+        index = faiss.IndexIVFFlat(quantizer, self.dim, nlist, faiss.METRIC_L2)
         index.nprobe = 10                          #查找聚类中心的个数，默认为1个，若nprobe=nlist则等同于精确查找
         assert not index.is_trained
         index.train(self.word_news_feature_vec)    #需要训练
         assert index.is_trained
         index.add(self.word_news_feature_vec)      #添加训练时的样本
-        D, I = index.search(queryVec, k)           #寻找相似向量， I表示相似用户ID矩阵， D表示距离矩阵
-
+        D, I = index.search(queryVec, self.k)           #寻找相似向量， I表示相似用户ID矩阵， D表示距离矩阵
+        
         res = []
-        for i in I[0]:
+        for idx, i in enumerate(I[0]):
             news_id = self.word_news_feature_id[i]
-            res.append((news_id, self.newsSet[news_id]))
+            #     res.append((news_id, newsSet[news_id]))    #返回title
+            similarity = 1/math.log(1+D[0][idx])     #距离转相似度
+            res.append((news_id, similarity))        #返回相似度
         
         return res
     
@@ -93,19 +97,19 @@ class search(object):
         queryVec = queryVec.reshape(1,128).astype('float32')
         
         #相似度检索
-        dim = 128         # 向量维度
-        k = 10            # 召回向量个数
-        index = faiss.index_factory(dim, "PCAR32,IVF100,SQ8") #PCA降到32位；搜索空间100；SQ8,scalar标量化，每个向量编码为8bit(1字节)
+        index = faiss.index_factory(self.dim, "PCAR32,IVF100,SQ8") #PCA降到32位；搜索空间100；SQ8,scalar标量化，每个向量编码为8bit(1字节)
         assert not index.is_trained
         index.train(self.word_news_feature_vec)    #需要训练
         assert index.is_trained
         index.add(self.word_news_feature_vec)      #添加训练时的样本
-        D, I = index.search(queryVec, k)           #寻找相似向量， I表示相似用户ID矩阵， D表示距离矩阵
+        D, I = index.search(queryVec, self.k)           #寻找相似向量， I表示相似用户ID矩阵， D表示距离矩阵
         
         res = []
-        for i in I[0]:
+        for idx, i in enumerate(I[0]):
             news_id = self.word_news_feature_id[i]
-            res.append((news_id, self.newsSet[news_id]))
+            #     res.append((news_id, newsSet[news_id]))    #返回title
+            similarity = 1/math.log(1+D[0][idx])     #距离转相似度
+            res.append((news_id, similarity))        #返回相似度
         
         return res
 
@@ -116,10 +120,12 @@ if __name__ == '__main__':
     
     test = search()
     result = test.FlatL2(query)
+#    result = test.IVFFlat(query)
+#    result = test.factory(query)
 
     print('input query:%s' % query)
-    for news_id, title in result:
-        print('id:%s, 标题:%s' % (news_id, title))
+    for news_id, ctr in result:
+        print('id:%s, ctr:%s' % (news_id, ctr))
     print("This took ", datetime.now() - start)
 
 

@@ -19,7 +19,7 @@ parser_put.add_argument("user_id", type=str, required=True, help="need user data
 # 功能方法
 def Rec_News(argv_):
     result = []
-    flow = Workflow()
+    workflow = Workflow()
     rec = userCF()
 #    test.split_dataset()
 #    test.user_sim()
@@ -27,7 +27,7 @@ def Rec_News(argv_):
     temp = rec.recommend(argv_)
     
     for item_id, ctr in temp:
-        middle = flow.sqlSearch(item_id)
+        middle = workflow.sqlSearch(item_id)
         middle.setdefault('ctr', round(ctr,4))
         result.append(middle)
 #        result.setdefault(item_id, middle)
