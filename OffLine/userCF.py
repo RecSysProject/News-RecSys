@@ -15,7 +15,7 @@ class userCF(object):
         self.testset = {}
 
         self.n_sim_user = 80      #相似用户数量       *重要5，10，20，40，(80,0.1406)最好，100
-        self.n_rec_news = 10      #推荐news数量
+        self.n_rec_news = 5      #推荐news数量 10>5 2020.8.23
 
         self.user_sim_mat = {}    #用户间的item相似度矩阵
         self.news_popular = {}    #item ：流行度

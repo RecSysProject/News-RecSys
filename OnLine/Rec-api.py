@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+from sqlWorkflow import Workflow
 sys.path.append("..")       #导入平级目录模块
 from OffLine.userCF import userCF
 from flask import Flask, g
@@ -17,14 +18,19 @@ parser_put.add_argument("user_id", type=str, required=True, help="need user data
 
 # 功能方法
 def Rec_News(argv_):
-    result = {}
-    test = userCF()
+    result = []
+    flow = Workflow()
+    rec = userCF()
 #    test.split_dataset()
 #    test.user_sim()
-    test.prepared()
-    temp = test.recommend(argv_)
+    rec.prepared()
+    temp = rec.recommend(argv_)
+    
     for item_id, ctr in temp:
-        result.setdefault(item_id, round(ctr, 4))
+        middle = flow.sqlSearch(item_id)
+        middle.setdefault('ctr', round(ctr,4))
+        result.append(middle)
+#        result.setdefault(item_id, middle)
     return result
 
 # 操作（post / get）资源列表
