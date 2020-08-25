@@ -138,6 +138,10 @@ class Workflow(object):
             conn.close()          #关闭数据库
         return res
 
+#    def getUserRegist(self):
+
+
+
 if __name__ == '__main__':
     start = datetime.now()
 
