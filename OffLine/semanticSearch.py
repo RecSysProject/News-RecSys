@@ -15,7 +15,8 @@ jieba.setLogLevel(logging.INFO)
 
 class search(object):
     def __init__(self):
-        
+        self.dim = 128         # 向量维度
+        self.k = 5             # 召回向量个数
         self.root='/Users/tung/Python/PersonalProject/NewsRecommend/Off-line/'
         self.newsSet = cPickle.load( open(self.root + 'newsSet_title.pkl','rb') )               # 新闻title字典
         
@@ -26,9 +27,6 @@ class search(object):
         self.word_news_feature = cPickle.load( open(self.root + 'multi_news_word.pkl','rb') )   # 新闻词嵌入
         self.word_news_feature_id = list(self.word_news_feature.keys())
         self.word_news_feature_vec = np.array(list(self.word_news_feature.values())).astype('float32')
-    
-        self.dim = 128         # 向量维度
-        self.k = 5             # 召回向量个数
     
     # 得到任意text的vector
     def get_vector(self, word_list):
