@@ -25,11 +25,9 @@ class userProfile(object):
         self.imgFile = self.root + 'On-line/user-profile/face.jpg'
         self.Nickname = '木冉'
         self.signature = "心向阳光 野蛮成长☀️"
-        self.A = {'sex': 'Unknow'}
-        self.B = {'sex': 'Male'}
-        self.C = {'sex': 'Female'}
+        self.sex = 'Female'
         self.age = 26
-        self.row = {'NickName':'alice', 'Province':'beiijng', 'City':'beijign'}
+        self.row = {'Occupation':'助理', 'Province':'北京', 'City':'北京'}
     
     '头像信息'
     #人脸检测
@@ -125,7 +123,7 @@ class userProfile(object):
         img_character = self.use_face(self.imgFile)
         sign_emotion = self.get_emotion(self.Nickname, self.signature)
         sign_tags = self.sign_tags(self.signature)
-        gender_aware = self.gender_aware(self.B['sex'])
+        gender_aware = self.gender_aware(self.sex)
         age_group = self.age_group(self.age)
         region_tende = self.region_tende(self.row)
         '静态画像'

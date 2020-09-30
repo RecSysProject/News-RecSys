@@ -8,6 +8,7 @@ from urllib import parse
 from urllib import request
 from datetime import datetime
 from urllib.request import urlopen
+from userProfile import userProfile
 
 class Workflow(object):
     def __init__(self):
@@ -91,7 +92,20 @@ class Workflow(object):
 
         print( '获取候选新闻的数据量为：', len(candidate))
         cPickle.dump( candidate, open(self.root + 'candidate.pkl', 'wb')) #tuple对象持久化
-
+    
+    '用户冷启动'
+    def userColdStart(self, user_id):
+        #生成用户静态画像
+        user_profile_vec = userProfile.staticProfile(user_id)
+        #在新闻向量中搜索
+        return
+    
+    '新闻冷启动'
+    def newsColdStart(self, news_id):
+    #生成新闻向量
+    #在用户静态画像中搜索
+        return
+    
     '从本地读入，准备召回'
     def recall(self):
         #[1]标题、[2]时间、[4]分类、[6]内容
@@ -137,10 +151,6 @@ class Workflow(object):
         finally:
             conn.close()          #关闭数据库
         return res
-
-#    def getUserRegist(self):
-
-
 
 if __name__ == '__main__':
     start = datetime.now()
