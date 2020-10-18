@@ -3,7 +3,7 @@
 import sys
 from sqlWorkflow import Workflow
 sys.path.append("..")       #导入平级目录模块
-from OffLine.semanticSearch import search
+from OffLine.queryExpansion import queryExpan
 from flask import Flask, g
 from flask_restful import reqparse, Api, Resource
 
@@ -17,16 +17,18 @@ parser_put.add_argument("query", type=str, required=True, help="need user data")
 #parser_put.add_argument("pwd", type=str, required=True, help="need pwd data")
 
 # 功能方法
-def Search_News(argv_):
+def query_Expan(argv_):
     result = []
     workflow = Workflow()
-    sear = search()
-    temp = sear.FlatL2(argv_)
-
-    for news_id, ctr in temp:
-        middle = workflow.sqlSearch(news_id)
-        middle.setdefault('ctr', round(ctr,4))
+    Expan = queryExpan()
+    temp = Expan.generate_expan(argv_)
+    
+    middle = {}
+    for expansion, relation in temp:
+        middle['expansion'] = argv_ + expansion
+        middle['relation'] = round(relation,4)
         result.append(middle)
+        middle = {}
     
     return result
 
@@ -38,18 +40,19 @@ class TodoList(Resource):
         
         # 构建新参数
         query = args['query']
-#        pwd = args['pwd']
+        #        pwd = args['pwd']
         print('input query:%s' % query)
         # 调用方法semantic_search
-        info = Search_News(query)
-    
+        info = query_Expan(query)
+        
         # 资源添加成功，返回201
         return info, 201
 
-# 设置路由，即路由地址为http://106.12.83.14:6666/search
-api.add_resource(TodoList, "/search")
+# 设置路由，即路由地址为http://106.12.83.14:5555/queryExpan
+api.add_resource(TodoList, "/queryExpan")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',#任何ip都可以访问
-            port=6666,#端口
+            port=5555,#端口
             debug=True)
+

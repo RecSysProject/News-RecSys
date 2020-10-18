@@ -119,6 +119,6 @@ if __name__ == '__main__':
     print('input query:%s' % query)
     for expansion, relation in result:
         print(u'query扩展：',query + expansion, relation)
-    print("-------------------------------\n")
+    
     print("This took ", datetime.now() - start)
 
