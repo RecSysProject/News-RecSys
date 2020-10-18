@@ -13,8 +13,9 @@ class queryExpan(object):
         self.root = '/Users/tung/Python/PersonalProject/RentPlatform/'
         '训练word2vec'
         self.Raw_corpora = self.root + "lianjia/"
-        self.train_file = self.root + "rent_corpus.txt"
-        self.save_model_name = self.root + "rent_wordVec"
+        self.train_file = self.root + "rent_embedding/rent_corpus.txt"  #预处理的语料
+        self.save_model_name = self.root + "rent_embedding/rent_wordVec"
+        self.chineseStopWords = self.root + "rent_embedding/chineseStopWords.txt"
     
         '加载word2vec模型'
         self.word_model = word2vec.Word2Vec.load(self.save_model_name)
@@ -23,7 +24,7 @@ class queryExpan(object):
     # 预处理
     ## 去停用词
     def get_stop_words(self):
-        path = self.root + "chineseStopWords.txt"
+        path = self.chineseStopWords
         file = open(path, 'rb').read().decode('utf-8').split('\r\n')
         return set(file)
 
@@ -78,7 +79,7 @@ class queryExpan(object):
                 dictionary.append(' '.join(word_list))
 
         for i in range(dictionary.__len__()):
-            file = self.root + 'rent_corpus.txt'
+            file = self.train_file
             f = open(file, 'a+', encoding='utf-8')
             f.write(''.join(dictionary[i]) +'\n')   #加\n换行显示
 
