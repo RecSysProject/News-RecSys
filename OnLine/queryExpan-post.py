@@ -4,8 +4,8 @@ import requests
 import json
 
 # api路径
-url="http://0.0.0.0:5555/queryExpan"
-#url="http://106.12.83.14:5555/queryExpan"
+#url="http://0.0.0.0:5555/queryExpan"
+url="http://106.12.83.14:5555/queryExpan"
 
 # 传入参数
 parms = {
